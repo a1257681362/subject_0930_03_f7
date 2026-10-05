@@ -223,4 +223,51 @@ public final class MuseumConstants {
     public static final String ACTION_ESCORT_ANOMALY = "ESCORT_ANOMALY";
     public static final String ACTION_ESCORT_RESUME = "ESCORT_RESUME";
     public static final String ACTION_LOAN_RETURN_CHECK = "LOAN_RETURN_CHECK";
+
+    // --------------------------------------------------------------------
+    // museum-7 文物库房库位与密集架预约
+    // --------------------------------------------------------------------
+
+    /** 密集架 / 库位状态：在用（可用）/ 停用（历史保留） */
+    public static final String STORAGE_ACTIVE = "ACTIVE";
+    public static final String STORAGE_DISABLED = "DISABLED";
+
+    /** 温区：常温 / 恒温 / 低温 */
+    public static final String ZONE_NORMAL = "NORMAL";
+    public static final String ZONE_CONSTANT = "CONSTANT";
+    public static final String ZONE_LOW_TEMP = "LOW_TEMP";
+
+    /** 防火等级：F1 / F2 / F3 */
+    public static final String FIRE_F1 = "F1";
+    public static final String FIRE_F2 = "F2";
+    public static final String FIRE_F3 = "F3";
+
+    /** 预约状态：有效 / 已随移动单开始 / 已释放（超时自动释放） */
+    public static final String RESV_RESERVED = "RESERVED";
+    public static final String RESV_CONSUMED = "CONSUMED";
+    public static final String RESV_RELEASED = "RELEASED";
+
+    /** 预约释放原因：超时自动释放 */
+    public static final String RELEASE_REASON_TIMEOUT = "TIMEOUT";
+
+    /** 移动单状态：移动中（持有互斥设备时段锁）/ 已完成 */
+    public static final String MOVE_MOVING = "MOVING";
+    public static final String MOVE_DONE = "DONE";
+
+    /** 库存状态：在库 / 已移出（历史保留） */
+    public static final String STOCK_IN_STOCK = "IN_STOCK";
+    public static final String STOCK_MOVED_OUT = "MOVED_OUT";
+
+    /** 互斥设备时段锁状态：占用中 / 已释放 */
+    public static final String LOCK_ACTIVE = "ACTIVE";
+    public static final String LOCK_RELEASED = "RELEASED";
+
+    /** 库房台账动作：密集架建档 / 库位建档 / 库位维护 / 预约 / 超时释放 / 移动开始 / 移动完成 */
+    public static final String ACTION_SHELF_CREATE = "SHELF_CREATE";
+    public static final String ACTION_CELL_CREATE = "CELL_CREATE";
+    public static final String ACTION_CELL_UPDATE = "CELL_UPDATE";
+    public static final String ACTION_RESERVE = "RESERVE";
+    public static final String ACTION_RESERVE_RELEASE = "RESERVE_RELEASE";
+    public static final String ACTION_MOVE_START = "MOVE_START";
+    public static final String ACTION_MOVE_COMPLETE = "MOVE_COMPLETE";
 }

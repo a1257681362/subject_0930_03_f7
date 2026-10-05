@@ -60,6 +60,13 @@ museum:
     # 应用就绪后补生成到期巡检任务（重启场景），之后按固定间隔扫描
     generate-on-startup: true
     generate-interval-ms: 60000
+  # 文物库房库位与密集架预约（museum-7）
+  storage:
+    # 预约超时时长（分钟），超时未开始移动的预约自动释放（已开始移动的格位不释放）
+    reserve-timeout-min: 30
+    # 超时预约释放扫描间隔（毫秒）；启动就绪补扫一轮，释放按条件更新幂等
+    release-scan-interval-ms: 60000
+    release-scan-on-startup: true
 
 mybatis-plus:
   mapper-locations: classpath*:mapper/**/*.xml
