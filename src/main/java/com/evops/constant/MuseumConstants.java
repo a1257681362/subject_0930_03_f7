@@ -223,4 +223,49 @@ public final class MuseumConstants {
     public static final String ACTION_ESCORT_ANOMALY = "ESCORT_ANOMALY";
     public static final String ACTION_ESCORT_RESUME = "ESCORT_RESUME";
     public static final String ACTION_LOAN_RETURN_CHECK = "LOAN_RETURN_CHECK";
+
+    // --------------------------------------------------------------------
+    // museum-7 文物库房库位与密集架预约
+    // --------------------------------------------------------------------
+
+    /** 温区：恒温 / 冷藏 / 常温 */
+    public static final String ZONE_CONST_TEMP = "CONST_TEMP";
+    public static final String ZONE_COLD = "COLD";
+    public static final String ZONE_ORDINARY = "ORDINARY";
+
+    /** 防火等级：F1 最高 / F2 / F3 */
+    public static final String FIRE_F1 = "F1";
+    public static final String FIRE_F2 = "F2";
+    public static final String FIRE_F3 = "F3";
+
+    /** 库区 / 密集架状态：在用 / 关闭停用 */
+    public static final String STORAGE_ACTIVE = "ACTIVE";
+    public static final String STORAGE_CLOSED = "CLOSED";
+
+    /** 格位状态：可用 / 已停用 */
+    public static final String CELL_ACTIVE = "ACTIVE";
+    public static final String CELL_DISABLED = "DISABLED";
+
+    /** 预约（兼移动主单）状态：已预约 / 已开工 / 已完成 / 已取消 / 超时释放 */
+    public static final String RES_RESERVED = "RESERVED";
+    public static final String RES_MOVING = "MOVING";
+    public static final String RES_COMPLETED = "COMPLETED";
+    public static final String RES_CANCELLED = "CANCELLED";
+    public static final String RES_EXPIRED = "EXPIRED";
+
+    /** 移动单状态：移动中 / 已完成 / 已取消 */
+    public static final String MOVE_MOVING = "MOVING";
+    public static final String MOVE_COMPLETED = "COMPLETED";
+    public static final String MOVE_CANCELLED = "CANCELLED";
+
+    /** 库存查询岗位：库房管理员（见全部）/ 馆藏保管员（敏感位置脱敏）/ 访客（过滤敏感位置） */
+    public static final String ROLE_WAREHOUSE_KEEPER = "WAREHOUSE_KEEPER";
+
+    /** 库房台账流水动作 */
+    public static final String ACTION_CELL_MAINTAIN = "CELL_MAINTAIN";
+    public static final String ACTION_RESERVE = "RESERVE";
+    public static final String ACTION_RESERVE_CANCEL = "RESERVE_CANCEL";
+    public static final String ACTION_RESERVE_EXPIRE = "RESERVE_EXPIRE";
+    public static final String ACTION_MOVE_START = "MOVE_START";
+    public static final String ACTION_MOVE_COMPLETE = "MOVE_COMPLETE";
 }

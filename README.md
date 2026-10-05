@@ -336,3 +336,59 @@ mvn test
 开箱单人/同名见证人拒绝、两名不同见证人通过；归还验收漏项/多项拒绝、损伤与缺失差异逐行保留、
 贯通借出记录同步归还；修复项目反查定位原单与异常原因；在途期间修复开工与文物撤销被拦截；
 台账动作链完整可追溯。
+
+## 文物库房库位与密集架预约（museum-7）
+
+库房按**库区 → 密集架 → 格位**三级维护：库位按**温区**（恒温 CONST_TEMP / 冷藏 COLD /
+常温 ORDINARY）、**防火等级**（F1/F2/F3）与**承重**建档；文物/箱体搬入前必须先
+**预约目标格位**；**移动单**固化原位、目的位、箱号与操作人员。
+
+### 预约与移动规则
+
+- **搬入前必须预约**：预约登记目标格位、箱号、计划操作时段与预约人，格位承重超限、
+  格位停用、原格位未存放该箱（库内移动）一律拒绝；同一格位同时只有一个在途预约
+  （`hold_key` 稀疏唯一约束，终态置空）。
+- **超时自动释放，但不释放已开工格位**：预约 `expire_at = 预约时间 + reservation-expire-minutes`
+  （默认 30 分钟，可在请求中以 `expireMinutes` 覆盖）；定时扫描（启动补扫 + 周期扫描，
+  串行不重入）只把**仍为 RESERVED 且已到期**的单置 EXPIRED 并清格位持有键，
+  **WHERE 不含 MOVING——已开始移动的格位永不释放**，释放后格位可再约。
+- **互斥设备同时段单一操作**：以一台密集架为互斥单位，同一架体上时间窗重叠
+  （`start < 存在.end AND end > 存在.start`）的在途预约/移动只允许一个，时间端点相接、
+  不同架体并行放行；架体行 UPDATE 占位锁把同架并发串行化，重叠判定在锁内复查。
+- **移动单留痕**：开工（RESERVED→MOVING）登记操作人员并生成移动单，固化原位/目的位
+  /箱号/操作人员快照；完成（MOVING→COMPLETED）在 `t_storage_stock` 原子清原格、立目的格；
+  已开工不可取消；开工/完成/取消重复调用幂等，不产生第二条。
+- **补传/补录/重试只形成一条结果**：预约以请求流水号 `requestNo` 为幂等锚点（全库唯一），
+  同号重复提交（含并发）命中同一条预约并原样返回，绝不产生第二条可用结果。
+- **库存查询按馆员权限隐藏敏感位置**（`?role=`，沿用 museum-2 传参方式）：
+  `WAREHOUSE_KEEPER` 库房管理员见全部精确位置；`CURATOR` 馆藏保管员对敏感格位保留库存
+  事实但精确位置脱敏（`masked=true`、`locationName="敏感库位"`，格位/架/库区/层列置空）；
+  `VIEWER`（访客/未声明角色）直接过滤掉敏感格位。
+- 建档停用、预约/取消/超时释放、移动开工/完成全部只追加写入 `t_storage_ledger`。
+
+### 库房接口
+
+| 方法与路径 | 作用 |
+| --- | --- |
+| `POST /api/storage/areas` / `GET /api/storage/areas` / `POST /api/storage/areas/{id}/close` | 库区建档（温区/防火等级/承重）/ 列表 / 关闭 |
+| `POST /api/storage/racks` / `GET /api/storage/racks?areaId=` | 密集架（互斥设备）建档 / 列表 |
+| `POST /api/storage/cells` / `GET /api/storage/cells?areaId=&rackId=` / `POST /api/storage/cells/{id}/disable` | 格位建档（承重上限/敏感标记，温区防火默认随库区）/ 列表 / 停用 |
+| `POST /api/storage/reservations` | 预约目标格位（`requestNo` 幂等；可选 originCellId/relicId/weightKg/expireMinutes） |
+| `GET  /api/storage/reservations?status=&requestNo=&cellId=` | 预约列表 |
+| `GET  /api/storage/reservations/{id}` | 预约详情：预约 + 移动单 + 库房台账 |
+| `POST /api/storage/reservations/{id}/start` | 开工移动（操作人员），生成移动单 |
+| `POST /api/storage/reservations/{id}/complete` | 完成移动，库存清原格立目的格 |
+| `POST /api/storage/reservations/{id}/cancel` | 取消预约（MOVING 不可取消） |
+| `POST /api/storage/reservations/expire-scan` | 手动触发一轮超时释放（定时任务同口径，MOVING 不释放） |
+| `GET  /api/storage/move-orders?rackId=&boxNo=` | 移动单列表 |
+| `GET  /api/storage/stock?role=&areaId=` | 库存查询，按馆员权限隐藏/脱敏敏感位置 |
+
+### 测试
+
+`StorageReservationTest`（独立内存库）覆盖：温区/防火等级/承重维护与非法枚举、超重、
+停用拦截；预约在途唯一、请求流水号补传/补录/重试只一条；互斥设备同架重叠拒绝、错峰与
+不同架放行；移动单原位/目的位/箱号/操作人员齐全、完成后库存清原格立目的格、重复调用幂等；
+超时自动释放后格位可再约、**MOVING 到期不释放且继续占格**；访客过滤、保管员脱敏、
+管理员全见的三档权限；台账动作链可追溯。
+`StorageReservationConcurrentTest` 覆盖：8 并发约同格位仅 1 成功、8 并发同架重叠仅 1 成功、
+8 并发同一流水号全部命中同一条。
